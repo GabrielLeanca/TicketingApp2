@@ -34,6 +34,23 @@ int main() {
 	deconstructorTest();
 	//cout << endl << vectLoc[3]->getAddress();
 
+	location.setName("brandName");
+	cout << endl << "name getter and setter: " << location.getName();
+
+	location.setCapacity(100);
+	cout << endl << "capacity getter and setter: " << location.getCapacity();
+
+	int* previousEventsArray = new int[3];
+	for (int i = 0; i < 3; i++) {
+		previousEventsArray[i] = i + 1;
+	}
+	location.setTicketsSoldPreviously(previousEventsArray, 3);
+	cout << endl;
+	previousEventsArray = location.getTicketsSoldPreviously();
+	for (int i = 0; i < 3; i++) {
+		cout << previousEventsArray[i] << " ";
+	}
+	cout << endl << "number of events (should be 3): " << location.getNoPreviousEvents();
 	//end of tests
 	//
 	//

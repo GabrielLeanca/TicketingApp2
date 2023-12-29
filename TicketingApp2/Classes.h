@@ -193,4 +193,46 @@ public:
 		strcpy_s(copy, strlen(this->name) + 1, this->name);
 		return copy;
 	}
+
+	void setName(string name) {
+		this->name = new char[strlen(name.c_str()) + 1];
+		strcpy_s(this->name, strlen(name.c_str()) + 1, name.c_str());
+	}
+
+	int getCapacity() {
+		return this->capacity;
+	}
+
+	void setCapacity(int capacity) {
+		if (capacity < 0)
+			throw exception("negative values not allowed");
+		this->capacity = capacity;
+	}
+
+	int* getTicketsSoldPreviously() {
+		int* copy = new int[noPreviousEvents];
+		for (int i = 0; i < noPreviousEvents; i++)
+			copy[i] = ticketsSoldPreviously[i];
+		return copy;
+	}
+
+	void setTicketsSoldPreviously(int* array, int noElem) {
+		if (noElem < 0)
+			throw exception("negative values not allowed");
+		delete[] ticketsSoldPreviously;
+		if (noElem == 0) {
+			ticketsSoldPreviously = nullptr;
+		}
+		if (noElem > 0) {
+			ticketsSoldPreviously = new int[noElem];
+			for (int i = 0; i < noElem; i++) {
+				ticketsSoldPreviously[i] = array[i];
+			}
+		}
+		this->noPreviousEvents = noElem;
+	}
+
+	int getNoPreviousEvents() {
+		return this->noPreviousEvents;
+	}
 };
