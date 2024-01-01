@@ -33,7 +33,7 @@ int main() {
 
 	deconstructorTest();
 	//cout << endl << vectLoc[3]->getAddress();
-
+	/*
 	location.setName("brandName");
 	cout << endl << "name getter and setter: " << location.getName();
 
@@ -51,6 +51,38 @@ int main() {
 		cout << previousEventsArray[i] << " ";
 	}
 	cout << endl << "number of events (should be 3): " << location.getNoPreviousEvents();
+
+	cout << endl << location.getRating() << " " << location.getRatingWeight();
+	location.setRating(3, 2);
+	cout << endl << location.getRating() << " " << location.getRatingWeight();
+
+	cout << endl << "tickets on first event: " << location[0];
+	location[0] = 7;
+	cout << endl << "tickets on first event: " << location[0];
+
+	locationNotDefault = location;
+	cout << locationNotDefault;
+	//cin >> locationNotDefault;
+	//cout << locationNotDefault;
+	*/
+
+	Event event;
+
+	Event eventNotDefault("name1", "01/01/2000", "20:00", location);
+	//cout << event;
+	Event copyEvent(eventNotDefault);
+	//cout << copyEvent;
+	event = copyEvent;
+	//cout << event;
+	event.setName("xyz");
+	event.setDate("30/04/2002");
+	event.setTime("10:10");
+	event.setTicketsSold(10);
+	event.setLocation(locationNotDefault);
+	/*cout << endl << event.getName() << endl << event.getDate() << endl << event.getTime() << endl << event.getTicketsSold() << endl << event.getLocation()->getAddress();
+	cin >> event;
+	cout << event;*/
+	Ticket ticket;
 	//end of tests
 	//
 	//
