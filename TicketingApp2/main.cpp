@@ -5,7 +5,7 @@ using namespace std;
 //tests
 void deconstructorTest() {
 	Location deconstructThis("adressd", "named", 43);
-	cout << endl << vectLoc[3]->getAddress();
+	cout << endl << Location::getVectLoc()[3]->getAddress();
 }
 //end of tests
 //
@@ -24,16 +24,16 @@ int main() {
 	Location locationNotDefault("city1, street1", "place1", 50);
 
 	cout << endl << "not default: " << locationNotDefault.getName();
-	cout << endl << "second in vector: " << vectLoc[1]->getName();
+	cout << endl << "second in vector: " << Location::getVectLoc()[1]->getName();
 
 	location = locationNotDefault;
 	Location copyL(locationNotDefault);
 
-	cout << endl << "assignment works: " << vectLoc[0]->getName() << " also address: " << vectLoc[2]->getAddress();
+	cout << endl << "assignment works: " << Location::getVectLoc()[0]->getName() << " also address: " << Location::getVectLoc()[2]->getAddress();
 
 	deconstructorTest();
-	//cout << endl << vectLoc[3]->getAddress();
-	/*
+	//cout << endl << Location::getVectLoc()[3]->getAddress();
+	
 	location.setName("brandName");
 	cout << endl << "name getter and setter: " << location.getName();
 
@@ -64,7 +64,7 @@ int main() {
 	cout << locationNotDefault;
 	//cin >> locationNotDefault;
 	//cout << locationNotDefault;
-	*/
+	
 
 	Event event;
 
@@ -83,6 +83,11 @@ int main() {
 	cin >> event;
 	cout << event;*/
 	Ticket ticket;
+	cout << endl << "tickets sold by event: " << event.getTicketsSold();
+	Ticket ticketNotDefault(event, VIP, 1);
+	cout << endl << "tickets sold by event: " << event.getTicketsSold();
+	ticket = ticketNotDefault;
+	Ticket ticketCopy(ticketNotDefault);
 	//end of tests
 	//
 	//
