@@ -35,57 +35,6 @@ class Event;
 class Ticket;
 class Location;
 
-
-
-
-
-class Util {
-public:
-	static void addElementToArray(Location**& array, int& n, Location& newElem) {
-		if (array != nullptr)
-		{
-			Location** aux = new Location*[n];
-			for (int i = 0; i < n; i++) {
-				aux[i] = array[i];
-			}
-			delete[] array;
-			array = new Location*[n + 1];
-			for (int i = 0; i < n; i++) {
-				array[i] = aux[i];
-			}
-			delete[] aux;
-			array[n] = &newElem;
-		}
-		else {
-			array = new Location*[1];
-			array[0] = &newElem;
-		}
-		n++;	
-	}
-
-	static void removeElementFromArray(Location**& array, int& n, Location* elem) {
-		if (array == nullptr)
-			throw exception("empty array");
-		Location** aux = new Location*[n-1];
-		int i;
-		for (i = 0; i < n-1; i++) {
-			if (array[i] == elem)
-				break;
-			aux[i] = array[i];
-		}
-		for (i; i < n-1; i++) {
-			aux[i] = array[i + 1];
-		}
-		delete[] array;
-		array = new Location * [n - 1];
-		for (i = 0; i < n - 1; i++) {
-			array[i] = aux[i];
-		}
-		delete[] aux;
-		n--;
-	}
-};
-
 class Location {
 protected:
 	const string address = "";
@@ -100,6 +49,50 @@ protected:
 
 	static Location** vectLoc;
 	static int noLoc;
+
+	void addElementToArray() {
+		if (vectLoc != nullptr)
+		{
+			Location** aux = new Location * [noLoc];
+			for (int i = 0; i < noLoc; i++) {
+				aux[i] = vectLoc[i];
+			}
+			delete[] vectLoc;
+			vectLoc = new Location * [noLoc + 1];
+			for (int i = 0; i < noLoc; i++) {
+				vectLoc[i] = aux[i];
+			}
+			delete[] aux;
+			vectLoc[noLoc] = this;
+		}
+		else {
+			vectLoc = new Location * [1];
+			vectLoc[0] = this;
+		}
+		noLoc++;
+	}
+
+	void removeElementFromArray() {
+		if (vectLoc == nullptr)
+			throw exception("empty array");
+		Location** aux = new Location * [noLoc - 1];
+		int i;
+		for (i = 0; i < noLoc - 1; i++) {
+			if (vectLoc[i] == this)
+				break;
+			aux[i] = vectLoc[i];
+		}
+		for (i; i < noLoc - 1; i++) {
+			aux[i] = vectLoc[i + 1];
+		}
+		delete[] vectLoc;
+		vectLoc = new Location * [noLoc - 1];
+		for (i = 0; i < noLoc - 1; i++) {
+			vectLoc[i] = aux[i];
+		}
+		delete[] aux;
+		noLoc--;
+	}
 public:
 	Location() :address("") {
 		name = nullptr;
@@ -109,7 +102,7 @@ public:
 		noPreviousEvents = 0;
 		rating = 2.5;
 		ratingWeight = 0;
-		Util::addElementToArray(vectLoc, noLoc, *this);
+		addElementToArray();
 	}
 
 	Location(string address, string name, int capacity) :address(address) {
@@ -122,7 +115,7 @@ public:
 		noPreviousEvents = 0;
 		rating = 2.5;
 		ratingWeight = 0;
-		Util::addElementToArray(vectLoc, noLoc, *this);
+		addElementToArray();
 	}
 
 	Location(Location& location) :address(location.address) {
@@ -148,7 +141,7 @@ public:
 		this->noPreviousEvents = location.noPreviousEvents;
 		this->rating = location.rating;
 		this->ratingWeight = location.ratingWeight;
-		Util::addElementToArray(vectLoc, noLoc, *this);
+		addElementToArray();
 	}
 
 	void operator=(Location& location) {
@@ -179,7 +172,7 @@ public:
 	~Location() {
 		delete[] this->name;
 		delete[] this->ticketsSoldPreviously;
-		Util::removeElementFromArray(vectLoc, noLoc, this);
+		removeElementFromArray();
 	}
 
 	string getAddress() {
@@ -284,8 +277,6 @@ public:
 	
 	void setMinimumPriceForLocation(float price);
 
-	
-
 	void addElementToTicketArray(int newElem) {
 		int* aux = new int[noPreviousEvents];
 		for (int i = 0; i < noPreviousEvents; i++) {
@@ -365,6 +356,49 @@ protected:
 	static Event** vectEv;
 	static int noEv;
 
+	void addElementToArray() {
+		if (vectEv != nullptr)
+		{
+			Event** aux = new Event * [noEv];
+			for (int i = 0; i < noEv; i++) {
+				aux[i] = vectEv[i];
+			}
+			delete[] vectEv;
+			vectEv = new Event * [noEv + 1];
+			for (int i = 0; i < noEv; i++) {
+				vectEv[i] = aux[i];
+			}
+			delete[] aux;
+			vectEv[noEv] = this;
+		}
+		else {
+			vectEv = new Event * [1];
+			vectEv[0] = this;
+		}
+		noEv++;
+	}
+
+	void removeElementFromArray() {
+		if (vectEv == nullptr)
+			throw exception("empty array");
+		Event** aux = new Event * [noEv - 1];
+		int i;
+		for (i = 0; i < noEv - 1; i++) {
+			if (vectEv[i] == this)
+				break;
+			aux[i] = vectEv[i];
+		}
+		for (i; i < noEv - 1; i++) {
+			aux[i] = vectEv[i + 1];
+		}
+		delete[] vectEv;
+		vectEv = new Event * [noEv - 1];
+		for (i = 0; i < noEv - 1; i++) {
+			vectEv[i] = aux[i];
+		}
+		delete[] aux;
+		noEv--;
+	}
 public:
 
 	Event() {
@@ -373,6 +407,7 @@ public:
 		strcpy_s(time, 6, "00:00"); // hh:mm
 		ticketsSold = 0;
 		location = nullptr;
+		addElementToArray();
 	}
 
 	Event(string name, string date, string time, Location& location) {
@@ -394,6 +429,7 @@ public:
 		strcpy_s(this->time, 6, time.c_str());
 		this->ticketsSold = 0;
 		this->location = &location;
+		addElementToArray();
 	}
 
 	Event(Event& event) {
@@ -415,6 +451,7 @@ public:
 		strcpy_s(this->time, 6, event.time);
 		this->ticketsSold = 0;
 		this->location = event.location;
+		addElementToArray();
 	}
 
 	void operator=(Event& event) {
@@ -440,6 +477,7 @@ public:
 
 	~Event() {
 		delete[] name;
+		removeElementFromArray();
 	}
 
 	friend ostream& operator<<(ostream& console, Event& event);
