@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <ctime>
 using namespace std;
 
 enum ticketType {
@@ -584,6 +585,50 @@ protected:
 		return randomID;
 	}
 
+	void addElementToArray() {
+		if (vectTk != nullptr)
+		{
+			Ticket** aux = new Ticket * [noTk];
+			for (int i = 0; i < noTk; i++) {
+				aux[i] = vectTk[i];
+			}
+			delete[] vectTk;
+			vectTk = new Ticket * [noTk + 1];
+			for (int i = 0; i < noTk; i++) {
+				vectTk[i] = aux[i];
+			}
+			delete[] aux;
+			vectTk[noTk] = this;
+		}
+		else {
+			vectTk = new Ticket * [1];
+			vectTk[0] = this;
+		}
+		noTk++;
+	}
+
+	void removeElementFromArray() {
+		if (vectTk == nullptr)
+			throw exception("empty array");
+		Ticket** aux = new Ticket * [noTk - 1];
+		int i;
+		for (i = 0; i < noTk - 1; i++) {
+			if (vectTk[i] == this)
+				break;
+			aux[i] = vectTk[i];
+		}
+		for (i; i < noTk - 1; i++) {
+			aux[i] = vectTk[i + 1];
+		}
+		delete[] vectTk;
+		vectTk = new Ticket * [noTk - 1];
+		for (i = 0; i < noTk - 1; i++) {
+			vectTk[i] = aux[i];
+		}
+		delete[] aux;
+		noTk--;
+	}
+
 public:
 	Ticket() {
 		id = generateTicketId();
@@ -630,7 +675,7 @@ public:
 		if (this->event != nullptr)
 			(*this->event)--;
 	}
-	/*
+	
 	float operator+(float nr) {
 		return this->price + nr;
 	}
@@ -646,14 +691,14 @@ public:
 	float operator/(float nr) {
 		return this->price / nr;
 	}
-
-	///*void removeDefaultTickets() {
-	//	for (int i = 0; i < noTk; i++) {
-	//		if (vectTk[i]->id == -1)
-	//			removeElementFromArray(vectTk, i, noTk);
-	//	}
-	//}
-
+	
+	static void removeDefaultTickets() {
+		for (int i = 0; i < noTk; i++) {
+			if (vectTk[i]->id == -1)
+				vectTk[i]->removeElementFromArray();
+		}
+	}
+	
 	float getPrice() {
 		return this->price;
 	}
@@ -673,8 +718,10 @@ public:
 		return *this->event;
 	}
 
-	void setEvent(Event event) {
-		this->event = &event;
+	void setEvent(Event* event) {
+		(*this->event)--;
+		this->event = event;
+		(*this->event)++;
 	}
 
 	ticketType getZone() {
@@ -687,120 +734,37 @@ public:
 		else
 			this->zone = zone;
 	}
-
-	friend static int getTicketsSold();
-
-	///*static void setTicketsSold(int sold) { //avoid using. represents number of elements in ticket list
-	//	if (price < 0) {
-	//		throw exception("negative value not allowed for tickets sold");
-	//	}
-	//	ticketsSold = sold;
-	//}
-
-	static Ticket* getVectTk() {
-		Ticket* copy = new Ticket[noTk];
+	
+	static int getNoTk() {
+		return noTk;
+	}
+	
+	static Ticket** getVectTk() {
+		Ticket** copy = new Ticket*[noTk];
 		for (int i = 0; i < noTk; i++) {
-			copy[i] = *vectTk[i];
+			copy[i] = vectTk[i];
 		}
 		return copy;
 	}
-
+	
 	//TicketList is a list of all existing tickets. creating/deleting a ticket will always update the list
 
-	//friend static Ticket getTicket(int index);
-
-	///*static void setTicket(Ticket ticket, int index) {
-	//	if (index < 0 || index >= ticketsSold)
-	//		throw exception("outside range");
-	//	ticketList[index] = ticket;
-	//}
-
-	static void addElementToArray(Ticket*& array, Ticket newElem, int& noElem) {
-
-		Ticket* aux = new Ticket[noElem];
-		for (int i = 0; i < noElem; i++) {
-			aux[i] = array[i];
-		}
-		delete[] array;
-		noElem++;
-		array = new Ticket[noElem];
-		for (int i = 0; i < noElem - 1; i++) {
-			array[i] = aux[i];
-		}
-		delete[] aux;
-		array[noElem - 1] = newElem;
+	static Ticket* getTicket(int index) {
+		if (index < 0 || index >= noTk)
+			throw exception("outside range");
+		return vectTk[index];
 	}
 
-	static void removeElementFromArray(Ticket*& array, int index, int& noElem) {
-		Ticket* aux = new Ticket[noElem];
-		int j = 0;
-		for (int i = 0; i < noElem; i++) {
-			if (i != index) {
-				aux[j] = array[i];
-				j++;
-			}
-		}
-		delete[] array;
-		noElem--;
-		array = new Ticket[noElem];
-		for (int i = 0; i < noElem; i++) {
-			array[i] = aux[i];
-		}
-		delete[] aux;
-	}
+	friend ostream& operator<<(ostream& console, Ticket& ticket);
+	friend istream& operator>>(istream& console, Ticket& ticket);
 
-	friend void operator<<(ostream console, Ticket ticket);
-	friend void operator>>(istream console, Ticket& ticket);*/
-
-	void addElementToArray() {
-		if (vectTk != nullptr)
-		{
-			Ticket** aux = new Ticket * [noTk];
-			for (int i = 0; i < noTk; i++) {
-				aux[i] = vectTk[i];
-			}
-			delete[] vectTk;
-			vectTk = new Ticket * [noTk + 1];
-			for (int i = 0; i < noTk; i++) {
-				vectTk[i] = aux[i];
-			}
-			delete[] aux;
-			vectTk[noTk] = this;
-		}
-		else {
-			vectTk = new Ticket * [1];
-			vectTk[0] = this;
-		}
-		noTk++;
-	}
-
-	void removeElementFromArray() {
-		if (vectTk == nullptr)
-			throw exception("empty array");
-		Ticket** aux = new Ticket * [noTk - 1];
-		int i;
-		for (i = 0; i < noTk - 1; i++) {
-			if (vectTk[i] == this)
-				break;
-			aux[i] = vectTk[i];
-		}
-		for (i; i < noTk - 1; i++) {
-			aux[i] = vectTk[i + 1];
-		}
-		delete[] vectTk;
-		vectTk = new Ticket * [noTk - 1];
-		for (i = 0; i < noTk - 1; i++) {
-			vectTk[i] = aux[i];
-		}
-		delete[] aux;
-		noTk--;
-	}
+	
 
 
 };
 
-/*
-void operator<<(ostream console, Ticket ticket) {
+
+ostream& operator<<(ostream& console, Ticket& ticket) {
 	console << endl << "Id: " << ticket.id;
 	if (ticket.event != nullptr) {
 		console << endl << "Event: " << ticket.event->getName();
@@ -823,27 +787,29 @@ void operator<<(ostream console, Ticket ticket) {
 		console << endl << "Ticket type: OTHER";
 	}
 	console << endl << "Price: " << ticket.price;
+	return console;
 }
 
-void operator>>(istream console, Ticket& ticket) {
-	int newParameter;
+istream& operator>>(istream& console, Ticket& ticket) {
+	string newParameter;
 	cout << endl << "Ticket zone/type (choose between VIP, CATEGORY1, CATEGORY2, CATEGORY3, OTHER): ";
 	console >> newParameter;
-	if (newParameter != VIP && newParameter != CATEGORY1 && newParameter != CATEGORY2 && newParameter != CATEGORY3)
+	if (newParameter != "VIP" && newParameter != "CATEGORY1" && newParameter != "CATEGORY2" && newParameter != "CATEGORY3")
 		ticket.zone = OTHER;
-	if (newParameter == VIP)
+	if (newParameter == "VIP")
 		ticket.zone = VIP;
-	if (newParameter == CATEGORY1)
+	if (newParameter == "CATEGORY1")
 		ticket.zone = CATEGORY1;
-	if (newParameter == CATEGORY2)
+	if (newParameter == "CATEGORY2")
 		ticket.zone = CATEGORY2;
-	if (newParameter == CATEGORY3)
+	if (newParameter == "CATEGORY3")
 		ticket.zone = CATEGORY3;
 	cout << endl << "Price: ";
 	console >> ticket.price;
 	if (ticket.price < 0)
 		throw exception("negative value not allowed for price");
-}*/
+	return console;
+}
 
 Ticket** Ticket::vectTk = nullptr;
 int Ticket::noTk = 0;

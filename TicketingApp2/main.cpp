@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "Classes.h"
 using namespace std;
 
@@ -13,7 +12,7 @@ void deconstructorTest() {
 
 
 int main() {
-
+	srand(time(0));
 
 	//tests
 	ticketType type = CATEGORY1;
@@ -77,17 +76,34 @@ int main() {
 	event.setName("xyz");
 	event.setDate("30/04/2002");
 	event.setTime("10:10");
-	event.setTicketsSold(10);
+	event.setTicketsSold(0);
 	event.setLocation(locationNotDefault);
 	/*cout << endl << event.getName() << endl << event.getDate() << endl << event.getTime() << endl << event.getTicketsSold() << endl << event.getLocation()->getAddress();
 	cin >> event;
 	cout << event;*/
+	cout << endl << endl << endl;
 	Ticket ticket;
 	cout << endl << "tickets sold by event: " << event.getTicketsSold();
 	Ticket ticketNotDefault(event, VIP, 1);
 	cout << endl << "tickets sold by event: " << event.getTicketsSold();
 	ticket = ticketNotDefault;
 	Ticket ticketCopy(ticketNotDefault);
+	cout << ticket << endl;
+	//cin >> ticket;
+	cout << endl << ticket;
+	cout << endl << " " << ticket - 1 << " " << ticket + 1 << " " << ticket / 2 << " " << ticket * 2;
+	ticket.setPrice(7);
+	cout << endl << ticket.getPrice() << " " << ticket.getId();
+	ticket.setEvent(&eventNotDefault);
+	cout << endl << eventNotDefault.getName();
+	cout << endl << ticket.getEvent().getName();
+	ticket.setZone(VIP);
+	cout << endl << ticket.getZone();
+	cout << endl << Ticket::getNoTk();
+
+	cout << endl << Ticket::getVectTk()[0]->getZone();
+	cout << endl << Ticket::getTicket(0)->getZone();
+	cout << *Ticket::getTicket(0);
 	//end of tests
 	//
 	//
