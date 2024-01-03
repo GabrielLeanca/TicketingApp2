@@ -265,6 +265,41 @@ public:
 			throw exception("outside range");
 		return this->ticketsSoldPreviously[index];
 	}
+	
+	void finishCurrentEvent(Event& event);
+
+	
+	void operator=(float review) {
+		if (review < 0 || review>5)
+			throw exception("review out of range");
+		this->rating = (this->rating * this->ratingWeight + review) / (this->ratingWeight+1);
+		this->ratingWeight++;
+	}
+	
+	bool operator!() {
+		if (this->name == nullptr)
+			return 1;
+		return 0;
+	}
+	
+	void setMinimumPriceForLocation(float price);
+
+	
+
+	void addElementToTicketArray(int newElem) {
+		int* aux = new int[noPreviousEvents];
+		for (int i = 0; i < noPreviousEvents; i++) {
+			aux[i] = ticketsSoldPreviously[i];
+		}
+		delete[] ticketsSoldPreviously;
+		noPreviousEvents++;
+		ticketsSoldPreviously = new int[noPreviousEvents];
+		for (int i = 0; i < noPreviousEvents - 1; i++) {
+			ticketsSoldPreviously[i] = aux[i];
+		}
+		delete[] aux;
+		ticketsSoldPreviously[noPreviousEvents - 1] = newElem;
+	}
 
 	friend ostream& operator<<(ostream& console, Location& location);
 	friend istream& operator>>(istream& console, Location& location);
@@ -405,7 +440,6 @@ public:
 
 	~Event() {
 		delete[] name;
-		//finishCurrentEvent(*this->location, ticketsSold);
 	}
 
 	friend ostream& operator<<(ostream& console, Event& event);
@@ -481,7 +515,7 @@ public:
 		return copy;
 	}
 
-	Event operator++() {
+	Event& operator++() {
 		this->ticketsSold++;
 		return *this;
 	}
@@ -494,12 +528,45 @@ public:
 		return copy;
 	}
 
-	Event operator--() {
+	Event& operator--() {
 		if (this->ticketsSold == 0)
 			throw exception("negative value not allowed for tickets currently sold");
 		this->ticketsSold--;
 		return *this;
 	}
+
+	bool operator>(Event event) {
+		if (this->ticketsSold > event.ticketsSold)
+			return 1;
+		return 0;
+	}
+
+	bool operator>=(Event event) {
+		if (this->ticketsSold >= event.ticketsSold)
+			return 1;
+		return 0;
+	}
+
+	bool operator==(Event event) {
+		if (this->ticketsSold == event.ticketsSold)
+			return 1;
+		return 0;
+	}
+
+	bool operator<=(Event event) {
+		if (this->ticketsSold <= event.ticketsSold)
+			return 1;
+		return 0;
+	}
+
+	bool operator<(Event event) {
+		if (this->ticketsSold < event.ticketsSold)
+			return 1;
+		return 0;
+	}
+
+	float calculateFutureRevenue();
+	void setTicketPriceForEvent(float price);
 };
 
 ostream& operator<<(ostream& console, Event& event) {
@@ -714,8 +781,8 @@ public:
 		return this->id;
 	}
 
-	Event getEvent() {
-		return *this->event;
+	Event* getEvent() {
+		return this->event;
 	}
 
 	void setEvent(Event* event) {
@@ -739,7 +806,7 @@ public:
 		return noTk;
 	}
 	
-	static Ticket** getVectTk() {
+	static Ticket** getVectTk() { 
 		Ticket** copy = new Ticket*[noTk];
 		for (int i = 0; i < noTk; i++) {
 			copy[i] = vectTk[i];
@@ -749,10 +816,10 @@ public:
 	
 	//TicketList is a list of all existing tickets. creating/deleting a ticket will always update the list
 
-	static Ticket* getTicket(int index) {
+	static Ticket& getTicket(int index) {
 		if (index < 0 || index >= noTk)
 			throw exception("outside range");
-		return vectTk[index];
+		return *vectTk[index];
 	}
 
 	friend ostream& operator<<(ostream& console, Ticket& ticket);
@@ -813,3 +880,56 @@ istream& operator>>(istream& console, Ticket& ticket) {
 
 Ticket** Ticket::vectTk = nullptr;
 int Ticket::noTk = 0;
+
+float operator+(float nr, Ticket ticket) {
+	return ticket.getPrice() + nr;
+}
+
+float operator-(float nr, Ticket ticket) {
+	return nr - ticket.getPrice();
+}
+
+float operator*(float nr, Ticket ticket) {
+	return ticket.getPrice() * nr;
+}
+
+float operator/(float nr, Ticket ticket) {
+	return nr / ticket.getPrice();
+}
+
+
+void Location::finishCurrentEvent(Event& event) {
+	if (event.getLocation() != this) {
+		throw exception("event not taking place at this location");
+	}
+	this->addElementToTicketArray(event.getTicketsSold());
+}
+
+
+void Location::setMinimumPriceForLocation(float price) {
+	for (int i = 0; i < Ticket::getNoTk(); i++) {
+		if (Ticket::getTicket(i).getEvent()->getLocation() == this) {
+			if (Ticket::getTicket(i).getPrice() < price)
+				Ticket::getTicket(i).setPrice(price);
+		}
+	}
+}
+
+
+float Event::calculateFutureRevenue() {
+	float sum = 0;
+	for (int i = 0; i < getTicketsSold(); i++) {
+		if (Ticket::getTicket(i).getEvent() == this) {
+			sum += Ticket::getTicket(i).getPrice();
+		}
+	}
+	return sum;
+}
+
+void Event::setTicketPriceForEvent(float price) {
+	for (int i = 0; i < Ticket::getNoTk(); i++) {
+		if (Ticket::getTicket(i).getEvent() == this) {
+			Ticket::getTicket(i).setPrice(price);
+		}
+	}
+}
