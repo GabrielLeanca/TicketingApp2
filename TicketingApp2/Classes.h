@@ -41,6 +41,7 @@ class Location {
 
 	
 protected:
+	bool isLocSeats = 0;
 	static Location** vectLoc;
 	static int noLoc;
 
@@ -63,6 +64,7 @@ protected:
 		noPreviousEvents = 0;
 		rating = 2.5;
 		ratingWeight = 0;
+		isLocSeats = 0;
 	}
 
 	void init(string name, int capacity) {
@@ -75,6 +77,7 @@ protected:
 		noPreviousEvents = 0;
 		rating = 2.5;
 		ratingWeight = 0;
+		isLocSeats = 0;
 	}
 
 	void init(Location& location) {
@@ -100,6 +103,7 @@ protected:
 		this->noPreviousEvents = location.noPreviousEvents;
 		this->rating = location.rating;
 		this->ratingWeight = location.ratingWeight;
+		this->isLocSeats = 0;
 	}
 	void deconstruct() {
 		delete[] this->name;
@@ -406,7 +410,7 @@ protected:
 public:
 	
 	LocSeats() :Location() {
-
+		isLocSeats = 1;
 	}
 
 	~LocSeats(){
@@ -422,7 +426,7 @@ public:
 	}
 	
 	LocSeats(string address, string name, int capacity) : Location(address, name, capacity) {
-
+		isLocSeats = 1;
 	}
 
 	LocSeats(string address, string name, int capacity, int noRows, int noSeatsPerRow) : Location(address, name, capacity) {
@@ -438,13 +442,14 @@ public:
 				arrSeats[i][j]  = new Seat(OTHER);
 			}
 		}
-		
+		isLocSeats = 1;
 	}
 	
 	LocSeats(Location& location) : Location(location) {
 		arrSeats = nullptr;
 		seatsPerRow = 0;
 		noRows = 0;
+		isLocSeats = 1;
 	}
 
 	LocSeats(LocSeats& location) : Location(location) {
@@ -462,7 +467,7 @@ public:
 		else {
 			arrSeats = nullptr;
 		}
-		
+		isLocSeats = 1;
 	}
 
 	int getNoRows() {
@@ -1122,3 +1127,25 @@ void Event::setTicketPriceForEvent(float price) {
 		}
 	}
 }
+
+class Menu {
+public:
+	static void start() {
+		cout << endl << "Choose option by typing the number associted with it and pressing enter:";
+		cout << endl << "[1] Start as admin" << endl << "[2] Start as customer";
+		cout << endl << "[3] Exit" << endl;
+		char i;
+		i = cin.get();
+		if (i == '1') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		}
+		if (i == '2') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		}
+		if(i!='1' && i!='2' && i!='3'){
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << endl << "Value not corresponding to an action";
+			start();
+		}
+	}
+};

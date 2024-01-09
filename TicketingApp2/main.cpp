@@ -23,9 +23,9 @@ void deconstructorTest() {
 
 int main() {
 	srand(time(0));
-	
+	Menu::start();
 	//tests
-	
+	/*
 	LocSeats no;
 	LocSeats ls("adressd", "named", 43);
 	cout << ls.getAddress();
@@ -37,9 +37,11 @@ int main() {
 
 	//LocSeats ls3("adress0", "named", 43, 2, 2);
 	//cout << endl << ls3.getArrSeats()[0][0]->getType();
+
+	
 	deconstructorTest();
 
-
+	*/
 	//end of tests
 	//
 	//
