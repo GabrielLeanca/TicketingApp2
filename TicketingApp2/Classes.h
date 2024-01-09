@@ -34,9 +34,18 @@ ostream& operator<<(ostream& console, ticketType type) {
 class Event;
 class Ticket;
 class Location;
+class LocSeats;
 
 class Location {
+	
+
+	
 protected:
+	static Location** vectLoc;
+	static int noLoc;
+
+	
+
 	const string address = "";
 	char* name = nullptr;
 	int capacity = 0;
@@ -47,9 +56,56 @@ protected:
 	float rating = 2.5; //can have 0 to 5 stars
 	int ratingWeight = 0;
 
-	static Location** vectLoc;
-	static int noLoc;
+	void init() {
+		name = nullptr;
+		capacity = 0;
+		ticketsSoldPreviously = nullptr;
+		noPreviousEvents = 0;
+		rating = 2.5;
+		ratingWeight = 0;
+	}
 
+	void init(string name, int capacity) {
+		if (capacity < 0)
+			throw exception("negative values not allowed");
+		this->name = new char[strlen(name.c_str()) + 1];
+		strcpy_s(this->name, strlen(name.c_str()) + 1, name.c_str());
+		this->capacity = capacity;
+		ticketsSoldPreviously = nullptr;
+		noPreviousEvents = 0;
+		rating = 2.5;
+		ratingWeight = 0;
+	}
+
+	void init(Location& location) {
+		delete[] this->name;
+		if (location.name == nullptr) {
+			this->name = nullptr;
+		}
+		else {
+			this->name = new char[strlen(location.name) + 1];
+			strcpy_s(this->name, strlen(location.name) + 1, location.name);
+		}
+		this->capacity = location.capacity;
+		delete[] this->ticketsSoldPreviously;
+		if (location.ticketsSoldPreviously != nullptr) {
+			this->ticketsSoldPreviously = new int[location.noPreviousEvents];
+			for (int i = 0; i < location.noPreviousEvents; i++) {
+				this->ticketsSoldPreviously[i] = location.ticketsSoldPreviously[i];
+			}
+		}
+		else {
+			this->ticketsSoldPreviously = nullptr;
+		}
+		this->noPreviousEvents = location.noPreviousEvents;
+		this->rating = location.rating;
+		this->ratingWeight = location.ratingWeight;
+	}
+	void deconstruct() {
+		delete[] this->name;
+		delete[] this->ticketsSoldPreviously;
+	}
+public:
 	void addElementToArray() {
 		if (vectLoc != nullptr)
 		{
@@ -93,55 +149,20 @@ protected:
 		delete[] aux;
 		noLoc--;
 	}
-public:
+
+	Location(string address) :address("") {
+	}
+
 	Location() :address("") {
-		name = nullptr;
-		capacity = 0;
-		//rows = 0;
-		ticketsSoldPreviously = nullptr;
-		noPreviousEvents = 0;
-		rating = 2.5;
-		ratingWeight = 0;
-		addElementToArray();
+		init();
 	}
 
 	Location(string address, string name, int capacity) :address(address) {
-		if (capacity < 0)
-			throw exception("negative values not allowed");
-		this->name = new char[strlen(name.c_str()) + 1];
-		strcpy_s(this->name, strlen(name.c_str()) + 1, name.c_str());
-		this->capacity = capacity;
-		ticketsSoldPreviously = nullptr;
-		noPreviousEvents = 0;
-		rating = 2.5;
-		ratingWeight = 0;
-		addElementToArray();
+		init(name, capacity);
 	}
 
 	Location(Location& location) :address(location.address) {
-		delete[] this->name;
-		if (location.name == nullptr) {
-			this->name = nullptr;
-		}
-		else {
-			this->name = new char[strlen(location.name) + 1];
-			strcpy_s(this->name, strlen(location.name) + 1, location.name);
-		}
-		this->capacity = location.capacity;
-		delete[] this->ticketsSoldPreviously;
-		if (location.ticketsSoldPreviously != nullptr) {
-			this->ticketsSoldPreviously = new int[location.noPreviousEvents];
-			for (int i = 0; i < location.noPreviousEvents; i++) {
-				this->ticketsSoldPreviously[i] = location.ticketsSoldPreviously[i];
-			}
-		}
-		else {
-			this->ticketsSoldPreviously = nullptr;
-		}
-		this->noPreviousEvents = location.noPreviousEvents;
-		this->rating = location.rating;
-		this->ratingWeight = location.ratingWeight;
-		addElementToArray();
+		init(location);
 	}
 
 	void operator=(Location& location) {
@@ -170,9 +191,7 @@ public:
 	}
 
 	~Location() {
-		delete[] this->name;
-		delete[] this->ticketsSoldPreviously;
-		removeElementFromArray();
+		deconstruct();
 	}
 
 	string getAddress() {
@@ -246,7 +265,7 @@ public:
 	}
 
 	static Location** getVectLoc() {
-		Location** copy = new Location*[noLoc];
+		Location** copy = new Location * [noLoc];
 		for (int i = 0; i < noLoc; i++) {
 			copy[i] = vectLoc[i];
 		}
@@ -258,23 +277,23 @@ public:
 			throw exception("outside range");
 		return this->ticketsSoldPreviously[index];
 	}
-	
+
 	void finishCurrentEvent(Event& event);
 
-	
+
 	void operator=(float review) {
 		if (review < 0 || review>5)
 			throw exception("review out of range");
-		this->rating = (this->rating * this->ratingWeight + review) / (this->ratingWeight+1);
+		this->rating = (this->rating * this->ratingWeight + review) / (this->ratingWeight + 1);
 		this->ratingWeight++;
 	}
-	
+
 	bool operator!() {
 		if (this->name == nullptr)
 			return 1;
 		return 0;
 	}
-	
+
 	void setMinimumPriceForLocation(float price);
 
 	void addElementToTicketArray(int newElem) {
@@ -290,6 +309,16 @@ public:
 		}
 		delete[] aux;
 		ticketsSoldPreviously[noPreviousEvents - 1] = newElem;
+	}
+
+	static int getNoLoc() {
+		return noLoc;
+	}
+
+	static Location& getLocation(int index) {
+		if (index < 0 || index >= noLoc)
+			throw exception("outside range");
+		return *vectLoc[index];
 	}
 
 	friend ostream& operator<<(ostream& console, Location& location);
@@ -345,6 +374,120 @@ istream& operator>>(istream& console, Location& location) {
 Location** Location::vectLoc = nullptr;
 int Location::noLoc = 0;
 
+
+class Seat {
+	bool occupied = 0;
+	ticketType type = OTHER;
+
+public:
+	Seat(ticketType type) {
+		this->type = type;
+		occupied = 0;
+	}
+
+	ticketType getType() {
+		return type;
+	}
+
+	void setType(ticketType zone) {
+		if (zone != 0 && zone != 1 && zone != 2 && zone != 3)
+			this->type = OTHER;
+		else
+			this->type = zone;
+	}
+};
+
+class LocSeats :public Location {
+protected:
+	Seat*** arrSeats = nullptr;
+	int noRows = 0;
+	int seatsPerRow = 0;
+	
+public:
+	
+	LocSeats() :Location() {
+
+	}
+
+	~LocSeats(){
+		if (arrSeats != nullptr) {
+			for (int i = 0; i < noRows; i++) {
+				for (int j = 0; j < seatsPerRow; j++) {
+					delete arrSeats[i][j];
+				}
+				delete[] arrSeats[i];
+			}
+			delete[] arrSeats;
+		}
+	}
+	
+	LocSeats(string address, string name, int capacity) : Location(address, name, capacity) {
+
+	}
+
+	LocSeats(string address, string name, int capacity, int noRows, int noSeatsPerRow) : Location(address, name, capacity) {
+		if (noRows < 0 || noSeatsPerRow < 0) {
+			throw exception("no negative values allowed");
+		}
+		this->noRows = noRows;
+		this->seatsPerRow = noSeatsPerRow;
+		arrSeats = new Seat * *[noRows];
+		for (int i = 0; i < noRows; i++) {
+			arrSeats[i] = new Seat * [noSeatsPerRow];
+			for (int j = 0; j < noSeatsPerRow; j++) {
+				arrSeats[i][j]  = new Seat(OTHER);
+			}
+		}
+		
+	}
+	
+	LocSeats(Location& location) : Location(location) {
+		arrSeats = nullptr;
+		seatsPerRow = 0;
+		noRows = 0;
+	}
+
+	LocSeats(LocSeats& location) : Location(location) {
+		this->noRows = location.noRows;
+		this->seatsPerRow = location.seatsPerRow;
+		if (this->noRows > 0 && this->seatsPerRow > 0) {
+			this->arrSeats = new Seat * *[this->noRows];
+			for (int i = 0; i < this->noRows; i++) {
+				this->arrSeats[i] = new Seat * [this->seatsPerRow];
+				for (int j = 0; j < this->seatsPerRow; j++) {
+					this->arrSeats[i][j] = new Seat(OTHER);
+				}
+			}
+		}
+		else {
+			arrSeats = nullptr;
+		}
+		
+	}
+
+	int getNoRows() {
+		return noRows;
+	}
+
+	int getSeatsPerRow() {
+		return seatsPerRow;
+	}
+	
+	Seat*** getArrSeats() {
+		if (arrSeats == nullptr)
+			return nullptr;
+		Seat*** copy = new Seat * *[noRows];
+		for (int i = 0; i < this->noRows; i++) {
+			copy[i] = new Seat * [this->seatsPerRow];
+			for (int j = 0; j < this->seatsPerRow; j++) {
+				copy[i][j] = arrSeats[i][j];
+			}
+		}
+		return copy;
+	}
+
+};
+
 class Event {
 protected:
 	char* name = nullptr;
@@ -355,6 +498,9 @@ protected:
 
 	static Event** vectEv;
 	static int noEv;
+
+	
+public:
 
 	void addElementToArray() {
 		if (vectEv != nullptr)
@@ -399,7 +545,6 @@ protected:
 		delete[] aux;
 		noEv--;
 	}
-public:
 
 	Event() {
 		name = nullptr;
@@ -407,7 +552,6 @@ public:
 		strcpy_s(time, 6, "00:00"); // hh:mm
 		ticketsSold = 0;
 		location = nullptr;
-		addElementToArray();
 	}
 
 	Event(string name, string date, string time, Location& location) {
@@ -429,7 +573,6 @@ public:
 		strcpy_s(this->time, 6, time.c_str());
 		this->ticketsSold = 0;
 		this->location = &location;
-		addElementToArray();
 	}
 
 	Event(Event& event) {
@@ -451,7 +594,6 @@ public:
 		strcpy_s(this->time, 6, event.time);
 		this->ticketsSold = 0;
 		this->location = event.location;
-		addElementToArray();
 	}
 
 	void operator=(Event& event) {
@@ -477,7 +619,6 @@ public:
 
 	~Event() {
 		delete[] name;
-		removeElementFromArray();
 	}
 
 	friend ostream& operator<<(ostream& console, Event& event);
@@ -602,13 +743,24 @@ public:
 			return 1;
 		return 0;
 	}
+	
+	
+	static int getNoEv() {
+		return noEv;
+	}
+	
+	static Event& getEvent(int index) {
+		if (index < 0 || index >= noEv)
+			throw exception("outside range");
+		return *vectEv[index];
+	}
 
-	float calculateFutureRevenue();
+	//float calculateFutureRevenue();
 	void setTicketPriceForEvent(float price);
 };
 
 ostream& operator<<(ostream& console, Event& event) {
-	
+
 	if (event.name != nullptr)
 		console << endl << "Name: " << event.name;
 	console << endl << "Date: ";
@@ -671,7 +823,7 @@ protected:
 	static Ticket** vectTk;
 	static int noTk;
 
-	
+
 	static int generateTicketId() {
 		int randomID;
 		bool ok = 0;
@@ -689,6 +841,10 @@ protected:
 		}
 		return randomID;
 	}
+
+	
+
+public:
 
 	void addElementToArray() {
 		if (vectTk != nullptr)
@@ -734,15 +890,13 @@ protected:
 		noTk--;
 	}
 
-public:
 	Ticket() {
 		id = generateTicketId();
 		event = nullptr;
 		zone = OTHER;
 		price = 0;
-		addElementToArray(); //noTk also increased here
 	}
-	
+
 	Ticket(Event& event, ticketType zone, float price) {
 		this->id = generateTicketId();
 		this->event = &event;
@@ -750,11 +904,10 @@ public:
 		if (price < 0)
 			throw exception("negative value not allowed for price");
 		this->price = price;
-		addElementToArray();
 		if (this->event != nullptr)
 			(*this->event)++;
 	}
-	
+
 	Ticket(Ticket& ticket) {
 		this->id = generateTicketId();
 		this->event = ticket.event;
@@ -762,9 +915,8 @@ public:
 		if (this->event != nullptr)
 			(*this->event)++;
 		this->price = ticket.price;
-		addElementToArray();
 	}
-	
+
 	void operator=(Ticket& ticket) {
 		if (this->event != nullptr)
 			(*this->event)--;
@@ -774,13 +926,12 @@ public:
 			(*this->event)++;
 		this->price = ticket.price;
 	}
-	
+
 	~Ticket() {
-		removeElementFromArray();
 		if (this->event != nullptr)
 			(*this->event)--;
 	}
-	
+
 	float operator+(float nr) {
 		return this->price + nr;
 	}
@@ -796,14 +947,14 @@ public:
 	float operator/(float nr) {
 		return this->price / nr;
 	}
-	
+
 	static void removeDefaultTickets() {
 		for (int i = 0; i < noTk; i++) {
 			if (vectTk[i]->id == -1)
 				vectTk[i]->removeElementFromArray();
 		}
 	}
-	
+
 	float getPrice() {
 		return this->price;
 	}
@@ -839,19 +990,19 @@ public:
 		else
 			this->zone = zone;
 	}
-	
+
 	static int getNoTk() {
 		return noTk;
 	}
-	
-	static Ticket** getVectTk() { 
-		Ticket** copy = new Ticket*[noTk];
+
+	static Ticket** getVectTk() {
+		Ticket** copy = new Ticket * [noTk];
 		for (int i = 0; i < noTk; i++) {
 			copy[i] = vectTk[i];
 		}
 		return copy;
 	}
-	
+
 	//TicketList is a list of all existing tickets. creating/deleting a ticket will always update the list
 
 	static Ticket& getTicket(int index) {
@@ -863,7 +1014,7 @@ public:
 	friend ostream& operator<<(ostream& console, Ticket& ticket);
 	friend istream& operator>>(istream& console, Ticket& ticket);
 
-	
+
 
 
 };
@@ -953,7 +1104,7 @@ void Location::setMinimumPriceForLocation(float price) {
 	}
 }
 
-
+/*
 float Event::calculateFutureRevenue() {
 	float sum = 0;
 	for (int i = 0; i < getTicketsSold(); i++) {
@@ -962,7 +1113,7 @@ float Event::calculateFutureRevenue() {
 		}
 	}
 	return sum;
-}
+}*/
 
 void Event::setTicketPriceForEvent(float price) {
 	for (int i = 0; i < Ticket::getNoTk(); i++) {
