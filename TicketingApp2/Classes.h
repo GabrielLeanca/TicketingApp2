@@ -10,6 +10,24 @@ enum ticketType {
 	VIP, CATEGORY1, CATEGORY2, CATEGORY3, OTHER
 };
 
+ticketType operator++(ticketType& type){
+	switch (type)
+	{
+	case VIP:
+		type = CATEGORY1;
+		break;
+	case CATEGORY1:
+		type = CATEGORY2;
+		break;
+	case CATEGORY2:
+		type = CATEGORY3;
+		break;
+	default:
+		type = OTHER;
+	}
+	return type;
+}
+
 ostream& operator<<(ostream& console, ticketType type) {
 	switch (type)
 	{
@@ -490,8 +508,62 @@ public:
 		}
 		return copy;
 	}
-
+	
+	friend ostream& operator<<(ostream& console, LocSeats& location);
+	friend istream& operator>>(istream& console, LocSeats& location);
 };
+
+ostream& operator<<(ostream& console, LocSeats& location) {
+	console << endl << "Name: " << location.name;
+	console << endl << "Address: " << location.address;
+	console << endl << "Max Seats: " << location.capacity;
+	for (int i = 0; i < location.noPreviousEvents; i++)
+		console << endl << "event " << i << ": " << location.ticketsSoldPreviously[i];
+	console << endl << "Number of previous events: " << location.noPreviousEvents;
+	console << endl << "Rating: " << location.rating << "/5 stars";
+	console << endl << "Reviews: " << location.ratingWeight;
+	console << endl << "No Rows: " << location.noRows;
+	console << endl << "Seats per Row: " << location.seatsPerRow;
+	return console;
+}
+
+istream& operator>>(istream& console, LocSeats& location) {
+	string newName;
+	cout << endl << "Name: ";
+	console >> newName;
+	delete[] location.name;
+	location.name = new char[strlen(newName.c_str()) + 1];
+	strcpy_s(location.name, strlen(newName.c_str()) + 1, newName.c_str());
+	cout << endl << "Capacity: ";
+	console >> location.capacity;
+	if (location.capacity < 0)
+		throw exception("negative values not allowed");
+	cout << endl << "Number of previous events: ";
+	console >> location.noPreviousEvents;
+	if (location.noPreviousEvents < 0)
+		throw exception("negative values not allowed");
+	delete[] location.ticketsSoldPreviously;
+	location.ticketsSoldPreviously = new int[location.noPreviousEvents];
+	for (int i = 0; i < location.noPreviousEvents; i++) {
+		cout << endl << "Tickets sold for event " << i << ": ";
+		console >> location.ticketsSoldPreviously[i];
+		if (location.ticketsSoldPreviously[i] < 0)
+			throw exception("review out of range");
+	}
+	if (location.noPreviousEvents == 0)
+		location.ticketsSoldPreviously = nullptr;
+	cout << endl << "Rating: ";
+	console >> location.rating;
+	cout << endl << "No reviews: ";
+	console >> location.ratingWeight;
+	if (location.rating < 0 || location.rating > 5 || location.ratingWeight < 0)
+		throw exception("negative values not allowed");
+	cout << endl << "No rows: ";
+	console >> location.noRows;
+	cout << endl << "No seats per row: ";
+	console >> location.seatsPerRow;
+	return console;
+}
 
 class Event {
 protected:
@@ -499,6 +571,7 @@ protected:
 	char date[11] = { 0 };
 	char time[6] = { 0 };
 	int ticketsSold = 0;
+	float ticketPrice[5] = { -1 };
 	Location* location = nullptr;
 
 	static Event** vectEv;
@@ -557,6 +630,9 @@ public:
 		strcpy_s(time, 6, "00:00"); // hh:mm
 		ticketsSold = 0;
 		location = nullptr;
+		for (int i = 0; i < 5; i++) {
+			ticketPrice[i] = -1;
+		}
 	}
 
 	Event(string name, string date, string time, Location& location) {
@@ -578,6 +654,9 @@ public:
 		strcpy_s(this->time, 6, time.c_str());
 		this->ticketsSold = 0;
 		this->location = &location;
+		for (int i = 0; i < 5; i++) {
+			ticketPrice[i] = -1;
+		}
 	}
 
 	Event(Event& event) {
@@ -599,6 +678,9 @@ public:
 		strcpy_s(this->time, 6, event.time);
 		this->ticketsSold = 0;
 		this->location = event.location;
+		for (int i = 0; i < 5; i++) {
+			this->ticketPrice[i] = event.ticketPrice[i];
+		}
 	}
 
 	void operator=(Event& event) {
@@ -620,6 +702,9 @@ public:
 		strcpy_s(this->time, 6, event.time);
 		this->ticketsSold = event.ticketsSold;
 		this->location = event.location;
+		for (int i = 0; i < 5; i++) {
+			this->ticketPrice[i] = event.ticketPrice[i];
+		}
 	}
 
 	~Event() {
@@ -628,6 +713,15 @@ public:
 
 	friend ostream& operator<<(ostream& console, Event& event);
 	friend istream& operator>>(istream& console, Event& event);
+
+	float getTicketPrice(int type) {
+		return ticketPrice[type];
+	}
+
+	void setTicketPrice() {
+		for (int i = 0; i < 5; i++)
+			cin >> ticketPrice[i];
+	}
 
 	char* getName() {
 		if (this->name == nullptr) {
@@ -933,8 +1027,8 @@ public:
 	}
 
 	~Ticket() {
-		if (this->event != nullptr)
-			(*this->event)--;
+		//if (this->event != nullptr)
+		//	(*this->event)--;
 	}
 
 	float operator+(float nr) {
@@ -1072,6 +1166,26 @@ istream& operator>>(istream& console, Ticket& ticket) {
 	return console;
 }
 
+class STicket : public Ticket {
+protected:
+	int row = 0;
+	int seatOnRow = 0;
+
+public:
+	int getRow() {
+		return row;
+	}
+
+	int getSeatOnRow() {
+		return seatOnRow;
+	}
+
+	STicket(Event& event, ticketType zone, float price, int row, int seat) : Ticket(event, zone, price) {
+		this->row = row;
+		this->seatOnRow = seat;
+	}
+};
+
 Ticket** Ticket::vectTk = nullptr;
 int Ticket::noTk = 0;
 
@@ -1131,21 +1245,112 @@ void Event::setTicketPriceForEvent(float price) {
 class Menu {
 public:
 	static void start() {
-		cout << endl << "Choose option by typing the number associted with it and pressing enter:";
+		cout << endl << "Choose option by typing the digit associted with it and pressing enter (only the first character typed in will be taken into account):";
 		cout << endl << "[1] Start as admin" << endl << "[2] Start as customer";
 		cout << endl << "[3] Exit" << endl;
 		char i;
 		i = cin.get();
 		if (i == '1') {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			admin();
 		}
 		if (i == '2') {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			customer();
 		}
 		if(i!='1' && i!='2' && i!='3'){
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cout << endl << "Value not corresponding to an action";
 			start();
 		}
+	}
+
+	static void admin() {
+		cout << endl << "[1] Create New Location" << endl << "[2] Inspect/Alter/Remove Location" << endl;
+		cout << "[3] Create New Event" << endl << "[4] Inspect/Alter/Remove Event" << endl;
+		cout << "[5] Inspect/Alter/Remove Ticket" << endl << "[6] Exit to main menu" << endl;
+		char i;
+		i = cin.get();
+		if (i == '1') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			createLocation();
+		}
+	}
+
+	static void createLocation() {
+		cout << endl << "[1] Create Location without seats" << endl << "[2] Create Location with seats" << endl;
+		cout << "[3] Back to Admin menu" << endl;
+		char i;
+		i = cin.get();
+		if (i == '1') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			Location* location = new Location;
+			cin >> *location;
+			location->addElementToArray();
+			admin();
+		}
+		if (i == '2') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			LocSeats* location = new LocSeats;
+			cin >> *location;
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			location->addElementToArray();
+			cout << "[y/n] Customize seat areas?" << endl;
+			i = cin.get();
+			if (i == 'y') {
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				int vip, cat1, cat2, cat3, other;
+				cout << endl << "how many rows are VIP? type an integer: ";
+				cin >> vip;
+				cout << endl << "how many rows are Category 1? ";
+				cin >> cat1;
+				cout << endl << "how many rows are Category 2? ";
+				cin >> cat2;
+				cout << endl << "how many rows are Category 3? ";
+				cin >> cat3;
+				if (vip + cat1 + cat2 + cat3 > location->getNoRows()) {
+					cout << endl << "More seats inserted than present in object. Changes cancelled.";
+					cout << endl << "Alter table from Admin menu to add zones";
+				}
+				else {
+					cin.ignore(numeric_limits<streamsize>::max(), '\n');
+					int index = 0;
+					for (index; index < vip; index++) {
+						for (int index2 = 0; index2 < location->getSeatsPerRow(); index2++) {
+							location->getArrSeats()[index][index2]->setType(VIP);
+						}
+					}
+					for (index; index < cat1; index++) {
+						for (int index2 = 0; index2 < location->getSeatsPerRow(); index2++) {
+							location->getArrSeats()[index][index2]->setType(CATEGORY1);
+						}
+					}
+					for (index; index < cat2; index++) {
+						for (int index2 = 0; index2 < location->getSeatsPerRow(); index2++) {
+							location->getArrSeats()[index][index2]->setType(CATEGORY2);
+						}
+					}
+					for (index; index < cat3; index++) {
+						for (int index2 = 0; index2 < location->getSeatsPerRow(); index2++) {
+							location->getArrSeats()[index][index2]->setType(CATEGORY3);
+						}
+					}
+				}
+			}
+			admin();
+		}
+		if (i != '1' && i != '2' && i != '3') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << endl << "Value not corresponding to an action";
+			admin();
+		}
+		if (i == '3') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			admin();
+		}
+	}
+
+	static void customer() {
+		cout << endl << "[1]";
 	}
 };
