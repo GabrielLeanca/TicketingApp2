@@ -1268,12 +1268,37 @@ public:
 	static void admin() {
 		cout << endl << "[1] Create New Location" << endl << "[2] Inspect/Alter/Remove Location" << endl;
 		cout << "[3] Create New Event" << endl << "[4] Inspect/Alter/Remove Event" << endl;
-		cout << "[5] Inspect/Alter/Remove Ticket" << endl << "[6] Exit to main menu" << endl;
+		cout << "[5] Inspect/Remove Ticket" << endl << "[6] Exit to main menu" << endl;
 		char i;
 		i = cin.get();
 		if (i == '1') {
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			createLocation();
+		}
+		if (i == '2') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			alterLocation();
+		}
+		if (i == '3') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			createEvent();
+		}
+		if (i == '4') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			alterEvent();
+		}
+		if (i == '5') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			alterTicket();
+		}
+		if (i == '6') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			start();
+		}
+		if (i != '1' && i != '2' && i != '3' && i != '4' && i != '5' && i != '6') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << endl << "Value not corresponding to an action";
+			admin();
 		}
 	}
 
@@ -1350,7 +1375,62 @@ public:
 		}
 	}
 
+	static void alterLocation() {
+
+	}
+
+	static void createEvent() {
+		Event* event = new Event;
+		cin >> *event;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		event->addElementToArray();
+		admin();
+	}
+
+	static void alterEvent() {
+
+	}
+
+	static void alterTicket() {
+
+	}
+
 	static void customer() {
-		cout << endl << "[1]";
+		cout << endl << "[1] Event List" << endl << "[2] Validate Ticket";
+		cout << endl << "[3] Exit to main menu" << endl;
+
+		char i;
+		i = cin.get();
+		if (i == '1') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			customerEvents();
+		}
+		if (i == '2') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			customerValidateTicket();
+		}
+		if (i == '3') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			start();
+		}
+		if (i != '1' && i != '2' && i != '3') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << endl << "Value not corresponding to an action";
+			customer();
+		}
+	}
+
+	static void customerEvents() {
+		cout << endl << "Here is a list of events (type an integer to choose event):";
+		for (int j = 0; j < Event::getNoEv(); j++) {
+			cout << endl << "[" << j << "] " << Event::getEvent(j).getName();
+		}
+		cout << endl;
+		int i;
+		cin >> i;
+	}
+
+	static void customerValidateTicket() {
+
 	}
 };
