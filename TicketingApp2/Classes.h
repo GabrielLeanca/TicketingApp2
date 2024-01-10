@@ -172,6 +172,10 @@ public:
 		noLoc--;
 	}
 
+	bool getIsLocSeats() {
+		return isLocSeats;
+	}
+
 	Location(string address) :address("") {
 	}
 
@@ -1184,7 +1188,37 @@ public:
 		this->row = row;
 		this->seatOnRow = seat;
 	}
+
+	friend ostream& operator<<(ostream& console, STicket& ticket);
 };
+
+ostream& operator<<(ostream& console, STicket& ticket) {
+	console << endl << "Id: " << ticket.id;
+	if (ticket.event != nullptr) {
+		console << endl << "Event: " << ticket.event->getName();
+	}
+	switch (ticket.zone) //VIP, CATEGORY1, CATEGORY2, CATEGORY3, OTHER
+	{
+	case 0:
+		console << endl << "Ticket type: VIP";
+		break;
+	case 1:
+		console << endl << "Ticket type: CATEGORY1";
+		break;
+	case 2:
+		console << endl << "Ticket type: CATEGORY2";
+		break;
+	case 3:
+		console << endl << "Ticket type: CATEGORY3";
+		break;
+	default:
+		console << endl << "Ticket type: OTHER";
+	}
+	console << endl << "Price: " << ticket.price;
+	console << endl << "Row: " << ticket.row;
+	console << endl << "Seat: " << ticket.seatOnRow;
+	return console;
+}
 
 Ticket** Ticket::vectTk = nullptr;
 int Ticket::noTk = 0;
@@ -1376,13 +1410,39 @@ public:
 	}
 
 	static void alterLocation() {
+		cout << endl << "Choose location (type an integer - type 0 to exit): ";
 
+		for (int j = 0; j < Location::getNoLoc(); j++) {
+			cout << endl << "[" << j + 1 << "] " << Location::getLocation(j).getName();
+		}
+		cout << endl;
+		int i;
+		cin >> i;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		if (i != 0) {
+
+		}
+		else {
+
+		}
 	}
 
 	static void createEvent() {
 		Event* event = new Event;
 		cin >> *event;
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << endl << "Choose location (type an integer - type 0 to skip): ";
+
+		for (int j = 0; j < Location::getNoLoc(); j++) {
+			cout << endl << "[" << j + 1 << "] " << Location::getLocation(j).getName();
+		}
+		cout << endl;
+		int i;
+		cin >> i;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		if (i != 0)
+			event->setLocation(Location::getLocation(i - 1));
+
 		event->addElementToArray();
 		admin();
 	}
@@ -1421,16 +1481,83 @@ public:
 	}
 
 	static void customerEvents() {
-		cout << endl << "Here is a list of events (type an integer to choose event):";
+		cout << endl << "Here is a list of events (type an integer to choose event - type 0 to exit):";
 		for (int j = 0; j < Event::getNoEv(); j++) {
-			cout << endl << "[" << j << "] " << Event::getEvent(j).getName();
+			cout << endl << "[" << j+1 << "] " << Event::getEvent(j).getName();
 		}
 		cout << endl;
 		int i;
 		cin >> i;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		if (i != 0) {
+			customerEventInfo(Event::getEvent(i - 1));
+		}
+		else {
+			customer();
+		}
+	}
+
+	static void customerEventInfo(Event& event) {
+		cout << event;
+		cout << endl << "[1] Visualise Seats";
+		if (event.getLocation() != nullptr) {
+			if (event.getLocation()->getIsLocSeats() == 0)
+				cout << " - unavailable (Event does not have a location with seats)";
+		}
+		else {
+			cout << " - unavailable (Event does not have a location with seats)";
+		}
+		cout << endl << "[2] Get Ticket" << endl << "[3] Exit" << endl;
+		int i;
+		cin >> i;
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		if (event.getLocation() == nullptr && i == '1') {
+			i = 'x';
+		}
+		else {
+			if (event.getLocation()->getIsLocSeats() == 0)
+				i = 'x';
+		}
+		if (i == '1') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			visualiseSeats(event, 1);
+		}
+		if (i == '2') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			getTicket(event);
+		}
+		if (i != '1' && i != '2' && i != '3') {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << endl << "Value not corresponding to an action";
+			customerEventInfo(event);
+		}
+
+		customer();
 	}
 
 	static void customerValidateTicket() {
+
+	}
+
+	static void visualiseSeats(Event& event, int whichSource) {
+
+
+
+		if (whichSource == 1) {
+			customerEventInfo(event);
+		}
+		else {
+
+		}
+	}
+
+	static void getTicket(Event& event) {
+		if (event.getLocation()->getIsLocSeats() == 0) {
+			Ticket* ticket = new Ticket();
+		}
+		else {
+
+		}
 
 	}
 };
